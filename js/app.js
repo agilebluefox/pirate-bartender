@@ -1,4 +1,4 @@
-$(document).ready(enterBar);
+$(document).ready(setupBar);
 
 // Constructor to create question objects which will be presented by the
 // bartender.
@@ -119,9 +119,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-// An array of possible tastes.
-var tastes = ["strong", "salty", "bitter", "sweet", "fruity"];
-
 // Convert each ingredient to an Ingredient object.
 var rum = new Ingredient("rum", "glug of rum", "strong");
 var whiskey = new Ingredient("whiskey", "slug of whiskey", "strong");
@@ -180,19 +177,38 @@ var questions = [strongQuestion, saltyQuestion, bitterQuestion, sweetQuestion,
 ];
 
 // An object to keep track of the customers taste preferences.
-var tastePreferences = {
-    "strong": false,
-    "salty": false,
-    "bitter": false,
-    "sweet": false,
-    "fruity": false
+function Preferences() {
+    this.strong = false,
+    this.salty = false,
+    this.bitter = false,
+    this.sweet = false,
+    this.fruity = false
 };
+
+function getUserPreferences(tastes, list) {
+    for (var taste in tastes) {
+        for (var i = 0; i < list.length; i++) {
+            if (taste == list[i]['id']) {
+                tastes[taste] = list.val();
+            }
+
+        }
+    }
+    console.log(tastes);
+    return tastes;
+}
+
+function setupBar() {
+   $('.suggestion h2').empty();
+   $('#questions .input-group').empty();
+    enterBar();
+}
 
 function enterBar() {
     // Reset the bar
-    $('#questions .input-group').empty();
     var checkbox = '';
-
+    var bartender = new Bartender();
+    var checked = '';
     // Iterate over the questions array and add each to the response list.
     $.each(questions, function (i, question) {
         // Get the html markup.
@@ -213,20 +229,16 @@ function enterBar() {
     // Handle the customer's selection.
     $('#submit').on('click', function (e) {
         e.preventDefault();
-        var checked = $('input:checked');
+        checked = $('input:checked');
         if (checked.length < 1) {
             renderSuggestion();
-            enterBar();
         } else {
-            for (var taste in tastePreferences) {
-                for (var i = 0; i < checked.length; i++) {
-                    if (taste == checked[i]['id']) {
-                        tastePreferences[taste] = checked.val();
-                    }
-                }
-            }
-            var bartender = new Bartender();
-            bartender.createDrink(tastePreferences);
+            var tastes = new Preferences();
+            var userTastePreferences = getUserPreferences(tastes, checked);
+            bartender.createDrink(userTastePreferences);
+            $('input:checked').removeAttr('checked');
         }
+
     });
+
 }
