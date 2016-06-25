@@ -1,3 +1,83 @@
+html {
+
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-size: 1.5em;
+    line-height: 1.5em;
+    margin: 0;
+    padding: 0;
+
+}
+
+.center {
+    text-align: center;
+}
+
 .hidden {
     display: none;
+}
+
+.bar {
+    position: relative;
+}
+
+#bartender {
+    margin: 0 auto;
+    width: 1200px;
+    height: 881px;
+    background: url(../images/pirate-bar.jpg) black;
+    background-size: cover;
+}
+
+.form-container {
+    position: fixed;
+    background-color: rgba(0,0,0,.7);
+    width: 100%;
+    top: 30%;
+    z-index: 10;
+}
+
+.form-input {
+
+}
+
+#questions {
+    width: 50%;
+    height: auto;
+    padding: 3rem;
+    display: block;
+    margin: 0 auto;
+}
+
+input[type=checkbox]
+{
+    vertical-align: middle;
+  /* Double-sized Checkboxes */
+  -ms-transform: scale(2); /* IE */
+  -moz-transform: scale(2); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+}
+
+label {
+    margin-left: 1rem;
+    vertical-align: middle;
+}
+
+.button {
+    margin-top: 2rem;
+}
+
+.button input {
+    background-color: rgba(153,0,0,1);
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
 }

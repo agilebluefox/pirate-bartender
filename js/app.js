@@ -82,7 +82,17 @@ Bartender.prototype.createDrink = function (tastePreferences) {
     var drink = nameDrink(preferences);
     // Choose a random ingredient from the list of possible ingredients.
     var drinkIngredient = drinkIngredients[getRandomInt(0, drinkIngredients.length)];
-    alert("You should try a " + drink + " with a " + drinkIngredient);
+    renderSuggestion(drink, drinkIngredient);
+}
+
+function renderSuggestion(drink, additive) {
+    var suggestion = '';
+    if (drink && additive) {
+        suggestion = '"' + "Ye should try a " + drink + " with a " + additive + '"';
+    } else {
+        suggestion = '"' + "Ye need to select at least one preference for me to help." + '"';
+    }
+    $('.suggestion h2').text(suggestion);
 }
 
 function nameDrink(taste) {
@@ -179,10 +189,14 @@ var tastePreferences = {
 };
 
 function enterBar() {
+    // Reset the bar
+    $('#questions .input-group').empty();
+    var checkbox = '';
+
     // Iterate over the questions array and add each to the response list.
     $.each(questions, function (i, question) {
         // Get the html markup.
-        var checkbox = $('.templates .form-input').clone();
+        checkbox = $('.templates .form-input').clone();
 
         var input = checkbox.find('input');
         input.attr('name', "taste");
@@ -193,21 +207,26 @@ function enterBar() {
         label.attr('for', question.taste);
         label.text(question.text);
 
-        $('#bartender .input-group').append(checkbox);
+        $('#questions .input-group').append(checkbox);
     });
 
     // Handle the customer's selection.
     $('#submit').on('click', function (e) {
         e.preventDefault();
         var checked = $('input:checked');
-        for (var taste in tastePreferences) {
-            for (var i = 0; i < checked.length; i++) {
-                if (taste == checked[i]['id']) {
-                    tastePreferences[taste] = checked.val();
+        if (checked.length < 1) {
+            renderSuggestion();
+            enterBar();
+        } else {
+            for (var taste in tastePreferences) {
+                for (var i = 0; i < checked.length; i++) {
+                    if (taste == checked[i]['id']) {
+                        tastePreferences[taste] = checked.val();
+                    }
                 }
             }
+            var bartender = new Bartender();
+            bartender.createDrink(tastePreferences);
         }
-        var bartender = new Bartender();
-        bartender.createDrink(tastePreferences);
     });
 }
