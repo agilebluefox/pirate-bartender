@@ -23,10 +23,13 @@ function Pantry(ingredient, quantity) {
 
 Pantry.prototype.addIngredient = function (ingredient, quantity) {
     if (ingredient instanceof(Ingredient)) {
-        console.log('Add ' + quantity + ' of ' + ingredient.name + ' to the pantry.');
+        console.log('Add ' + quantity + ' of ' + ingredient.name +
+            ' to the pantry.');
         this.updateQuantity(ingredient, quantity);
     } else {
-        console.log('Make the ingredient a Pantry object and update the quantity stored.');
+        console.log(
+            'Make the ingredient a Pantry object and update the quantity stored.'
+        );
     }
 }
 
@@ -49,16 +52,41 @@ function Ingredient(name, expression, taste) {
     this.taste = taste;
 }
 
+// Constructor for a bartender object.
+function Bartender() {
 
+}
+
+// Method to allow the bartender to make drinks based on the customer's preferences.
+Bartender.prototype.createDrink = function (tastePreferences) {
+    var drink = [];
+    for (var taste in tastePreferences) {
+        if (tastePreferences[taste]) {
+            console.log(taste + ", " + tastePreferences[taste]);
+            var list = pantry[taste];
+            console.log(list);
+            var rand = getRandomInt(0, list.length);
+            console.log(list.length + ", " + rand);
+            drink.push(list[rand]);
+            console.log(list[rand]);
+        }
+    }
+    alert("You should try a drink with a " + drink);
+    console.log(drink);
+}
 
 // An array of ingredients to be used for drinks.
 var ingredientArray = {
     "strong": ["Glug of rum", "slug of whisky", "splash of gin"],
     "salty": ["Olive on a stick", "salt-dusted rim", "rasher of bacon"],
-    "bitter": ["Shake of bitters", "splash of tonic", "twist of lemon peel"],
+    "bitter": ["Shake of bitters", "splash of tonic",
+        "twist of lemon peel"
+    ],
     "sweet": ["Sugar cube", "spoonful of honey", "splash of cola"],
     "fruity": ["Slice of orange", "dash of cassis", "cherry on top"]
 };
+
+var tastes = ["strong", "salty", "bitter", "sweet", "fruity"];
 
 // Convert each ingredient to an Ingredient object.
 var rum = new Ingredient("rum", "Glug of rum", "strong");
@@ -77,6 +105,11 @@ var orange = new Ingredient("orange", "slice of orange", "fruity");
 var cassis = new Ingredient("cassis", "dash of cassis", "fruity");
 var cherry = new Ingredient("cherry", "cherry on top", "fruity");
 
+// Put the ingredients in an array.
+var ingredients = [rum, whiskey, gin, olive, salt, bacon, bitters,
+    tonic, lemon, sugar, honey, cola, orange, cassis, cherry
+];
+
 //Add the ingredients to the pantry.
 var storedRum = new Pantry(rum, 96);
 var storedWhiskey = new Pantry(whiskey, 48);
@@ -94,6 +127,12 @@ var storedOrange = new Pantry(orange, 48);
 var storedCassis = new Pantry(cassis, 48);
 var storedCherry = new Pantry(cherry, 60);
 
+// Make an array of the pantry items.
+var storedIngredients = [storedRum, storedWhiskey, storedGin, storedOlive,
+    storedSalt, storedBacon, storedBitters, storedTonic, storedLemon,
+    storedSugar, storedHoney, storedCola, storedOrange, storedCassis,
+    storedCherry
+];
 // Create some question objects and store them in an array to use later.
 var strongQuestion = new Question("strong", "Do ye like yer drinks strong?");
 var saltyQuestion = new Question("salty", "Do ye like it with a salty tang?");
@@ -115,7 +154,12 @@ var tastePreferences = {
     "fruity": false
 };
 
-
+function Drink(name, ingredients, size, cost) {
+    this.name = name;
+    this.ingredients = ingredients;
+    this.size = size;
+    this.cost = cost;
+}
 
 // To get started a customer must enter the bar.
 function enterBar() {
@@ -127,7 +171,15 @@ function makeDrink() {
     for (var taste in tastePreferences) {
         if (tastePreferences[taste]) {
             console.log(taste + ", " + tastePreferences[taste]);
-            var list = pantry[taste];
+            var list = [];
+            $.each(ingredients, function (i, ingredient) {
+                 if (ingredient.taste == taste) {
+                    console.log(ingredient.taste);
+                    list.push(ingredient.expression);
+                 }
+            });
+
+
             console.log(list);
             var rand = getRandomInt(0, list.length);
             console.log(list.length + ", " + rand);
