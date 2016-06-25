@@ -38,7 +38,6 @@ Pantry.prototype.updateQuantity = function (ingredient, quantity) {
     console.log(
         'Adjust the quantity of the ingredient stored in the pantry.'
     );
-
 }
 
 /*
@@ -59,38 +58,63 @@ function Bartender() {
 
 // Method to allow the bartender to make drinks based on the customer's preferences.
 Bartender.prototype.createDrink = function (tastePreferences) {
-    var drink = [];
+    // Use a few of lists to store the potential drink ingredients,
+    // the customer's taste preferences, and the corresponding expression
+    // used to describe the ingredient so we can suggest a drink.
+    var drinkIngredients = [], preferences = [], expressions = [];
+    // Loop over the preferences object to see which tastes the customer prefers.
     for (var taste in tastePreferences) {
         if (tastePreferences[taste]) {
-            console.log(taste + ", " + tastePreferences[taste]);
-            var list = pantry[taste];
-            console.log(list);
-            var rand = getRandomInt(0, list.length);
-            console.log(list.length + ", " + rand);
-            drink.push(list[rand]);
-            console.log(list[rand]);
+            preferences.push(taste);
+            // Using the current taste preference, search the list of ingredients
+            // to find those that have a taste equal to the selected taste, then
+            // store the expression in the list.
+            $.each(ingredients, function (i, ingredient) {
+                 if (ingredient.taste == taste) {
+                    expressions.push(ingredient.expression);
+                 }
+            });
+            // Choose a random ingredient to add to the suggested drink.
+            var rand = getRandomInt(0, expressions.length);
+            drinkIngredients.push(expressions[rand]);
         }
     }
-    alert("You should try a drink with a " + drink);
-    console.log(drink);
+    var drink = nameDrink(preferences);
+    // Choose a random ingredient from the list of possible ingredients.
+    var drinkIngredient = drinkIngredients[getRandomInt(0, drinkIngredients.length)];
+    alert("You should try a " + drink + " with a " + drinkIngredient);
 }
 
-// An array of ingredients to be used for drinks.
-var ingredientArray = {
-    "strong": ["Glug of rum", "slug of whisky", "splash of gin"],
-    "salty": ["Olive on a stick", "salt-dusted rim", "rasher of bacon"],
-    "bitter": ["Shake of bitters", "splash of tonic",
-        "twist of lemon peel"
-    ],
-    "sweet": ["Sugar cube", "spoonful of honey", "splash of cola"],
-    "fruity": ["Slice of orange", "dash of cassis", "cherry on top"]
-};
+function nameDrink(taste) {
+    var adjective = taste[getRandomInt(0, taste.length)];
+    var animals = ["Mongoose", "Devil-Dog", "Black Mamba", "Bear",
+    "Kangaroo", "Golden Monkey"];
+    var animal = animals[getRandomInt(0, animals.length)];
+    var drinkName = "";
+    drinkName += adjective + " " + animal;
+    return titleCase(drinkName);
+}
 
+function titleCase(str) {
+    var regex = /(^|\s)[a-z]/g;
+    return str.replace(regex, upperCase);
+}
+
+function upperCase(str) {
+    return str.toUpperCase();
+}
+
+// Function to elicit a pseudo random number.
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+// An array of possible tastes.
 var tastes = ["strong", "salty", "bitter", "sweet", "fruity"];
 
 // Convert each ingredient to an Ingredient object.
-var rum = new Ingredient("rum", "Glug of rum", "strong");
-var whiskey = new Ingredient("whiskey", "Slug of whiskey", "strong");
+var rum = new Ingredient("rum", "glug of rum", "strong");
+var whiskey = new Ingredient("whiskey", "slug of whiskey", "strong");
 var gin = new Ingredient("gin", "splash of gin", "strong");
 var olive = new Ingredient("olive", "olive on a stick", "salty");
 var salt = new Ingredient("salt", "salt-dusted rim", "salty");
@@ -154,49 +178,7 @@ var tastePreferences = {
     "fruity": false
 };
 
-function Drink(name, ingredients, size, cost) {
-    this.name = name;
-    this.ingredients = ingredients;
-    this.size = size;
-    this.cost = cost;
-}
-
-// To get started a customer must enter the bar.
 function enterBar() {
-    loadResponses();
-}
-
-function makeDrink() {
-    var drink = [];
-    for (var taste in tastePreferences) {
-        if (tastePreferences[taste]) {
-            console.log(taste + ", " + tastePreferences[taste]);
-            var list = [];
-            $.each(ingredients, function (i, ingredient) {
-                 if (ingredient.taste == taste) {
-                    console.log(ingredient.taste);
-                    list.push(ingredient.expression);
-                 }
-            });
-
-
-            console.log(list);
-            var rand = getRandomInt(0, list.length);
-            console.log(list.length + ", " + rand);
-            drink.push(list[rand]);
-            console.log(list[rand]);
-        }
-    }
-    alert("You should try a drink with a " + drink);
-    console.log(drink);
-}
-
-// Function to elicit a pseudo random number.
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
-
-function loadResponses() {
     // Iterate over the questions array and add each to the response list.
     $.each(questions, function (i, question) {
         // Get the html markup.
@@ -225,6 +207,7 @@ function loadResponses() {
                 }
             }
         }
-        makeDrink();
+        var bartender = new Bartender();
+        bartender.createDrink(tastePreferences);
     });
 }
