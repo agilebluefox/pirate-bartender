@@ -9,8 +9,8 @@ function Question(taste, text) {
 
 /*
 Create a pantry object which should contain all of the ingredients. The pantry
-must keep track of the quantity of each ingredient. When the amount of the ingredient changes, the
-pantry needs to adjust the values stored in it's database.
+must keep track of the quantity of each ingredient. When the amount of the
+ingredient changes, the pantry needs to adjust the values stored in it's database.
 */
 
 function Pantry(ingredient, quantity) {
@@ -34,10 +34,12 @@ Pantry.prototype.addIngredient = function (ingredient, quantity) {
 }
 
 // Method to update the quantity of the ingredient on stock.
-Pantry.prototype.updateQuantity = function (ingredient, quantity) {
+Pantry.prototype.updateQuantity = function (quantity) {
     console.log(
         'Adjust the quantity of the ingredient stored in the pantry.'
     );
+    this.quantity += quantity;
+    return this.quantity;
 }
 
 /*
@@ -61,45 +63,77 @@ Bartender.prototype.createDrink = function (tastePreferences) {
     // Use a few of lists to store the potential drink ingredients,
     // the customer's taste preferences, and the corresponding expression
     // used to describe the ingredient so we can suggest a drink.
-    var drinkIngredients = [], preferences = [], expressions = [];
+    var extraIngredient = [],
+        preferences = [],
+        ingredientName = [];
     // Loop over the preferences object to see which tastes the customer prefers.
     for (var taste in tastePreferences) {
         if (tastePreferences[taste]) {
             preferences.push(taste);
-            // Using the current taste preference, search the list of ingredients
-            // to find those that have a taste equal to the selected taste, then
-            // store the expression in the list.
-            $.each(ingredients, function (i, ingredient) {
-                 if (ingredient.taste == taste) {
-                    expressions.push(ingredient.expression);
-                 }
-            });
-            // Choose a random ingredient to add to the suggested drink.
-            var rand = getRandomInt(0, expressions.length);
-            drinkIngredients.push(expressions[rand]);
         }
     }
-    var drink = nameDrink(preferences);
+    var primaryFlavor = chooseMainFlavor(preferences);
+    var drink = nameDrink(primaryFlavor);
+
+    // Using the current taste preference, search the list of ingredients
+    // to find those that have a taste equal to the selected taste, then
+    // store the expression in the list.
+    for (var taste of preferences) {
+        if (taste) {
+            $.each(ingredients, function (i, ingredient) {
+                if (ingredient.taste == taste) {
+                    ingredientName.push(ingredient.expression);
+                }
+            });
+        }
+    }
+
+    // Choose a random extra ingredient to add to the suggested drink.
+    var rand = getRandomInt(0, ingredientName.length);
+    extraIngredient.push(ingredientName[rand]);
+
     // Choose a random ingredient from the list of possible ingredients.
-    var drinkIngredient = drinkIngredients[getRandomInt(0, drinkIngredients.length)];
+    var drinkIngredient = extraIngredient[getRandomInt(0, extraIngredient.length)];
+
     renderSuggestion(drink, drinkIngredient);
+}
+
+function chooseMainFlavor(preferences) {
+    var mainFlavor;
+    if (preferences.length > 1) {
+        var index = getRandomInt(0, preferences.length)
+        mainFlavor = preferences[index];
+        preferences[index] = '';
+    } else {
+        mainFlavor = preferences[0];
+    }
+
+    return mainFlavor;
 }
 
 function renderSuggestion(drink, additive) {
     var suggestion = '';
     if (drink && additive) {
-        suggestion = '"' + "Ye should try a " + drink + " with a " + additive + '"';
+        suggestion = '"' + "Ye should try a " + drink + " with a " + additive +
+            '"';
     } else {
-        suggestion = '"' + "Ye need to select at least one preference for me to help." + '"';
+        suggestion = '"' +
+            "Ye need to select at least one preference for me to help." + '"';
     }
     $('.suggestion h2').text(suggestion);
 }
 
 function nameDrink(taste) {
-    var adjective = taste[getRandomInt(0, taste.length)];
-    var animals = ["Mongoose", "Devil-Dog", "Black Mamba", "Bear",
-    "Kangaroo", "Golden Monkey"];
-    var animal = animals[getRandomInt(0, animals.length)];
+    var adjective = taste;
+    var animals = {
+        "strong": ['Devil Dog', 'Black Mamba'],
+        "salty": ['Golden Monkey', 'Manic Kangaroo'],
+        "bitter": ['Rabid Mongoose', 'Dyslexic Badger', ],
+        "sweet": ['Pink Panther', 'Ladybug'],
+        "fruity": ['Dancing Bear', 'Flying Giraffe']
+    }
+
+    var animal = animals[taste][getRandomInt(0, animals[taste].length)];
     var drinkName = "";
     drinkName += adjective + " " + animal;
     return titleCase(drinkName);
@@ -158,6 +192,8 @@ var storedOrange = new Pantry(orange, 48);
 var storedCassis = new Pantry(cassis, 48);
 var storedCherry = new Pantry(cherry, 60);
 
+// console.log(storedRum.updateQuantity(-1));
+
 // Make an array of the pantry items.
 var storedIngredients = [storedRum, storedWhiskey, storedGin, storedOlive,
     storedSalt, storedBacon, storedBitters, storedTonic, storedLemon,
@@ -179,10 +215,10 @@ var questions = [strongQuestion, saltyQuestion, bitterQuestion, sweetQuestion,
 // An object to keep track of the customers taste preferences.
 function Preferences() {
     this.strong = false,
-    this.salty = false,
-    this.bitter = false,
-    this.sweet = false,
-    this.fruity = false
+        this.salty = false,
+        this.bitter = false,
+        this.sweet = false,
+        this.fruity = false
 };
 
 function getUserPreferences(tastes, list) {
@@ -194,13 +230,13 @@ function getUserPreferences(tastes, list) {
 
         }
     }
-    console.log(tastes);
+    // console.log(tastes);
     return tastes;
 }
 
 function setupBar() {
-   $('.suggestion h2').empty();
-   $('#questions .input-group').empty();
+    $('.suggestion h2').empty();
+    $('#questions .input-group').empty();
     enterBar();
 }
 
@@ -234,7 +270,8 @@ function enterBar() {
             renderSuggestion();
         } else {
             var tastes = new Preferences();
-            var userTastePreferences = getUserPreferences(tastes, checked);
+            var userTastePreferences = getUserPreferences(tastes,
+                checked);
             bartender.createDrink(userTastePreferences);
             $('input:checked').removeAttr('checked');
         }
