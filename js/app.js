@@ -94,8 +94,13 @@ Bartender.prototype.createDrink = function (tastePreferences) {
 
     // Choose a random ingredient from the list of possible ingredients.
     var drinkIngredient = extraIngredient[getRandomInt(0, extraIngredient.length)];
+    console.log(drinkIngredient);
 
     renderSuggestion(drink, drinkIngredient);
+    // change the quantity of the ingredient.
+    for (var i = 0; i < storedIngredients.length; i++) {
+        if (storedIngredients[i].ingredient.expression == drinkIngredient) { console
+                .log(storedIngredients[i].updateQuantity(-1)); } }
 }
 
 function chooseMainFlavor(preferences) {
