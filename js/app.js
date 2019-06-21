@@ -36,7 +36,7 @@ Pantry.prototype.addIngredient = function (ingredient, quantity) {
 // Method to update the quantity of the ingredient on stock.
 Pantry.prototype.updateQuantity = function (quantity) {
     console.log(
-        'Adjust the quantity of the ingredient stored in the pantry.'
+        'Adjust the quantity of ' + this.ingredient.name + ' stored in the pantry.'
     );
     this.quantity += quantity;
     return this.quantity;
@@ -48,13 +48,41 @@ ingredient exists, it can be stored in the pantry and used when making
 drinks or meals.
  */
 function Ingredient(name, expression, taste) {
-    this.name = name;
-    this.expression = expression;
-    this.taste = taste;
+    this.name = name || "";
+    this.expression = expression || ""; // For rendering in output.
+    this.taste = taste || ""; // Need a taste for this project.
 }
+
+// Make a drink ingredient that inherits from the ingredient prototype.
+function Beverage (name, expression, taste) {
+    Ingredient.call(this, name, expression, taste);
+    this.category = 'Beverage';
+}
+
+Beverage.prototype = Object.create(Ingredient.prototype);
+
+// Make a burger ingredient that inherits from the ingredient prototype.
+function Food (name, expression, taste) {
+     Ingredient.call(this, name, expression, taste);
+     this.category = 'Food';
+}
+
+Food.prototype = Object.create(Ingredient.prototype);
+
+// A type of food that could be added to a drink or a burger.
+function Garnish(name, expression, taste) {
+    Food.call(this, name, expression, taste);
+}
+
+Garnish.prototype = Object.create(Food.prototype);
 
 // Constructor for a bartender object.
 function Bartender() {
+
+}
+
+// Create a chef object.
+function Chef () {
 
 }
 
@@ -81,7 +109,7 @@ Bartender.prototype.createDrink = function (tastePreferences) {
     for (var taste of preferences) {
         if (taste) {
             $.each(ingredients, function (i, ingredient) {
-                if (ingredient.taste == taste) {
+                if (ingredient instanceof Garnish && ingredient.taste == taste) {
                     ingredientName.push(ingredient.expression);
                 }
             });
@@ -92,14 +120,16 @@ Bartender.prototype.createDrink = function (tastePreferences) {
     var rand = getRandomInt(0, ingredientName.length);
     extraIngredient.push(ingredientName[rand]);
 
-    // Choose a random ingredient from the list of possible ingredients.
-    var drinkIngredient = extraIngredient[getRandomInt(0, extraIngredient.length)];
-    console.log(drinkIngredient);
+    // Choose a random ingredient from the list of possible ingredients
+    // to serve as an additive to the drink to show the customer you're
+    // trying to accomodate their specific taste preferences.
+    var garnish = extraIngredient[getRandomInt(0, extraIngredient.length)];
+    console.log(garnish);
 
-    renderSuggestion(drink, drinkIngredient);
+    renderSuggestion(drink, garnish);
     // change the quantity of the ingredient.
     for (var i = 0; i < storedIngredients.length; i++) {
-        if (storedIngredients[i].ingredient.expression == drinkIngredient) { console
+        if (storedIngredients[i].ingredient.expression == garnish) { console
                 .log(storedIngredients[i].updateQuantity(-1)); } }
 }
 
@@ -131,11 +161,11 @@ function renderSuggestion(drink, additive) {
 function nameDrink(taste) {
     var adjective = taste;
     var animals = {
-        "strong": ['Devil Dog', 'Black Mamba'],
-        "salty": ['Golden Monkey', 'Manic Kangaroo'],
-        "bitter": ['Rabid Mongoose', 'Dyslexic Badger', ],
-        "sweet": ['Pink Panther', 'Ladybug'],
-        "fruity": ['Dancing Bear', 'Flying Giraffe']
+        "strong": ['Devil Dog', 'Black Mamba', 'Storming Elephant', 'Stampeding Buffalo'],
+        "salty": ['Golden Monkey', 'Manic Kangaroo', 'Thrashing Salmon', 'Creeping Iguana' ],
+        "bitter": ['Rabid Mongoose', 'Dyslexic Badger', 'One-legged Bat', 'Dwarf Rhino'],
+        "sweet": ['Pink Panther', 'Ladybug', 'Charming Chipmunk', 'Singing Seal'],
+        "fruity": ['Dancing Bear', 'Flying Giraffe', 'Prancing Pony', 'Twirling Meerkat']
     }
 
     var animal = animals[taste][getRandomInt(0, animals[taste].length)];
@@ -158,32 +188,38 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-// Convert each ingredient to an Ingredient object.
-var rum = new Ingredient("rum", "glug of rum", "strong");
-var whiskey = new Ingredient("whiskey", "slug of whiskey", "strong");
-var gin = new Ingredient("gin", "splash of gin", "strong");
-var olive = new Ingredient("olive", "olive on a stick", "salty");
-var salt = new Ingredient("salt", "salt-dusted rim", "salty");
-var bacon = new Ingredient("bacon", "rasher of bacon", "salty");
-var bitters = new Ingredient("bitters", "shake of bitters", "bitter");
-var tonic = new Ingredient("tonic", "splash of tonic", "bitter");
-var lemon = new Ingredient("lemon", "twist of lemon peel", "bitter");
-var sugar = new Ingredient("sugar", "sugar cube", "sweet");
-var honey = new Ingredient("honey", "spoonful of honey", "sweet");
-var cola = new Ingredient("cola", "splash of cola", "sweet");
-var orange = new Ingredient("orange", "slice of orange", "fruity");
-var cassis = new Ingredient("cassis", "dash of cassis", "fruity");
-var cherry = new Ingredient("cherry", "cherry on top", "fruity");
+// Convert each to an appropriate object.
+var rum = new Beverage("rum", "glug of rum", "strong");
+var whiskey = new Beverage("whiskey", "slug of whiskey", "strong");
+var gin = new Beverage("gin", "splash of gin", "strong");
+var tabasco = new Garnish("tabasco", "shot of tabasco", "strong");
+var olive = new Garnish("olive", "olive on a stick", "salty");
+var salt = new Garnish("salt", "salt-dusted rim", "salty");
+var bacon = new Garnish("bacon", "rasher of bacon", "salty");
+var bitters = new Garnish("bitters", "shake of bitters", "bitter");
+var tonic = new Beverage("tonic", "splash of tonic", "bitter");
+var lemon = new Garnish("lemon", "twist of lemon peel", "bitter");
+var sugar = new Garnish("sugar", "sugar cube", "sweet");
+var honey = new Garnish("honey", "spoonful of honey", "sweet");
+var cola = new Beverage("cola", "splash of cola", "sweet");
+var orange = new Garnish("orange", "slice of orange", "fruity");
+var cassis = new Garnish("cassis", "dash of cassis", "fruity");
+var cherry = new Garnish("cherry", "cherry on top", "fruity");
+var bun = new Food("hamburger bun", "hamburger bun", "sweet");
+var hamburger = new Food("hamburger", "hamburger", "meaty");
+var cheese = new Food("cheese", "cheese", "sharp");
 
 // Put the ingredients in an array.
-var ingredients = [rum, whiskey, gin, olive, salt, bacon, bitters,
-    tonic, lemon, sugar, honey, cola, orange, cassis, cherry
+var ingredients = [rum, whiskey, gin, tabasco, olive, salt, bacon, bitters,
+    tonic, lemon, sugar, honey, cola, orange, cassis, cherry, bun, hamburger,
+    cheese
 ];
 
 //Add the ingredients to the pantry.
 var storedRum = new Pantry(rum, 96);
 var storedWhiskey = new Pantry(whiskey, 48);
 var storedGin = new Pantry(gin, 48);
+var storedTabasco = new Pantry(tabasco, 100);
 var storedOlive = new Pantry(olive, 300);
 var storedSalt = new Pantry(salt, 100);
 var storedBacon = new Pantry(bacon, 35);
@@ -196,6 +232,9 @@ var storedCola = new Pantry(cola, 360);
 var storedOrange = new Pantry(orange, 48);
 var storedCassis = new Pantry(cassis, 48);
 var storedCherry = new Pantry(cherry, 60);
+var storedBun = new Pantry(bun, 48);
+var storedHamburger = new Pantry(hamburger, 48);
+var storedCheese = new Pantry(cheese, 48);
 
 // console.log(storedRum.updateQuantity(-1));
 
@@ -203,8 +242,9 @@ var storedCherry = new Pantry(cherry, 60);
 var storedIngredients = [storedRum, storedWhiskey, storedGin, storedOlive,
     storedSalt, storedBacon, storedBitters, storedTonic, storedLemon,
     storedSugar, storedHoney, storedCola, storedOrange, storedCassis,
-    storedCherry
+    storedCherry, storedBun, storedHamburger, storedCheese, storedTabasco
 ];
+
 // Create some question objects and store them in an array to use later.
 var strongQuestion = new Question("strong", "Do ye like yer drinks strong?");
 var saltyQuestion = new Question("salty", "Do ye like it with a salty tang?");
